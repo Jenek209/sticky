@@ -6,6 +6,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.setCentralWidget(self.textEdit)
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
