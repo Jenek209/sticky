@@ -1,13 +1,17 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5 import QtWidgets
+import design
+
+class ExampleApp(QtWidgets.QMainWindow, design.Ui_Form):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    window = ExampleApp()
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-
-    w = QWidget()
-    w.resize(250, 150)
-    w.move(300, 300)
-    w.setWindowTitle('Stickyy')
-    w.show()
-
-    sys.exit(app.exec_())
+    main()
