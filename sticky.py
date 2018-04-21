@@ -33,10 +33,6 @@ class ExampleApp(QMainWindow, design.Ui_Form):
         color = QColorDialog.getColor()
 
         if color.isValid():
-            self.setAutoFillBackground(True)
-            p = self.palette()
-            p.setColor(self.backgroundRole(), QColor(color.name()))
-            self.setPalette(p)
             self.textEdit.setStyleSheet("QTextEdit {background-color:%s}}" % color.name())
 
 
