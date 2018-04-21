@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QMenu, QApplication, QAction
+from PyQt5.QtWidgets import QMainWindow, QMenu, QApplication, QAction, QColorDialog
 from PyQt5.QtCore import Qt
-#from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QKeySequence, QColor
 
 import design
 
@@ -21,13 +21,24 @@ class ExampleApp(QMainWindow, design.Ui_Form):
         menu = QMenu(self)
 
         menu.addAction(QAction(self.tr('+'), self, triggered=self.addSticker))
-        menu.addAction('color')
+        menu.addAction('color', self.openColorDialog)
         menu.addAction('format')
 
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
         ExampleApp(self).show()
+
+    def openColorDialog(self):
+        color = QColorDialog.getColor()
+
+        if color.isValid():
+            self.setAutoFillBackground(True)
+            p = self.palette()
+            p.setColor(self.backgroundRole(), QColor(color.name()))
+            self.setPalette(p)
+            self.textEdit.setStyleSheet("QTextEdit {background-color:%s}}" % color.name())
+
 
 def main():
     app = QApplication(sys.argv)
