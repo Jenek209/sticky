@@ -6,6 +6,7 @@ import design
 
 
 class ExampleApp(QMainWindow, design.Ui_Form):
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -32,34 +33,36 @@ class ExampleApp(QMainWindow, design.Ui_Form):
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
+
         ExampleApp(self).show()
 
     def backgroundColorDialog(self):
+
         self.bcolor = QColorDialog.getColor()
 
         if self.bcolor.isValid():
             self.tcolor = QColor()
             self.tcolor.setRgb(*[255-x for x in self.bcolor.getRgb()[0:3]], alpha=self.bcolor.getRgb()[3])
-
-            self.textEdit.setStyleSheet("""
-            QTextEdit {{
-                background-color:{0};
-                color:{1};
-            }}
-            """.format(self.bcolor.name(), self.tcolor.name()))
+            self.setTextStyleSheet()
 
     def textColorDialog(self):
+
         self.tcolor = QColorDialog.getColor()
 
         if self.tcolor.isValid():
-            self.textEdit.setStyleSheet("""
-            QTextEdit {{
-                background-color:{0};
-                color:{1};
-            }}
-            """.format(self.bcolor.name(), self.tcolor.name()))
+            self.setTextStyleSheet()
+
+    def setTextStyleSheet(self):
+
+        self.textEdit.setStyleSheet("""
+        QTextEdit {{
+            background-color:{0};
+            color:{1};
+        }}
+        """.format(self.bcolor.name(), self.tcolor.name()))
 
     def fontDialog(self):
+
         font, ok = QFontDialog.getFont()
 
         if ok:
@@ -67,6 +70,7 @@ class ExampleApp(QMainWindow, design.Ui_Form):
 
 
 def main():
+
     app = QApplication(sys.argv)
     window = ExampleApp()
     window.show()
