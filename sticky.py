@@ -32,9 +32,11 @@ class ExampleApp(QMainWindow, design.Ui_Form):
 
         menu.exec_(self.mapToGlobal(pos))
 
+
     def addSticker(self):
 
         ExampleApp(self).show()
+
 
     def backgroundColorDialog(self):
 
@@ -45,12 +47,14 @@ class ExampleApp(QMainWindow, design.Ui_Form):
             self.tcolor.setRgb(*[255-x for x in self.bcolor.getRgb()[0:3]], alpha=self.bcolor.getRgb()[3])
             self.setTextStyleSheet()
 
+
     def textColorDialog(self):
 
         self.tcolor = QColorDialog.getColor()
 
         if self.tcolor.isValid():
             self.setTextStyleSheet()
+
 
     def setTextStyleSheet(self):
 
@@ -60,6 +64,7 @@ class ExampleApp(QMainWindow, design.Ui_Form):
             color:{1};
         }}
         """.format(self.bcolor.name(), self.tcolor.name()))
+
 
     def fontDialog(self):
 
