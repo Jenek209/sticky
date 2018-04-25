@@ -1,28 +1,27 @@
-import sys
-from PyQt5.QtWidgets import QMainWindow, QMenu, QApplication, QAction, QColorDialog, QFontDialog
+from PyQt5.QtWidgets import (QMainWindow, QMenu,
+                             QApplication, QAction,
+                             QColorDialog, QFontDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence, QColor
+from PyQt5.QtGui import QColor
 import design
 
 
-class ExampleApp(QMainWindow, design.Ui_Form):
+class StickyApp(QMainWindow, design.Ui_Form):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
         self.setupUi(self)
 
         self.setCentralWidget(self.textEdit)
-
         self.textEdit.setContextMenuPolicy(Qt.CustomContextMenu)
         self.textEdit.customContextMenuRequested.connect(self.myContextMenu)
+        self.textEdit.textChanged.connect(self.saveText)
 
         self.bcolor = QColor()
         self.tcolor = QColor()
 
 
     def myContextMenu(self, pos):
-
         menu = QMenu(self)
 
         menu.addAction(QAction(self.tr('+'), self, triggered=self.addSticker))
@@ -34,14 +33,11 @@ class ExampleApp(QMainWindow, design.Ui_Form):
 
 
     def addSticker(self):
-
-        ExampleApp(self).show()
+        StickyApp(self).show()
 
 
     def backgroundColorDialog(self):
-
         self.bcolor = QColorDialog.getColor()
-
         if self.bcolor.isValid():
             self.tcolor = QColor()
             self.tcolor.setRgb(*[255-x for x in self.bcolor.getRgb()[0:3]], alpha=self.bcolor.getRgb()[3])
@@ -49,15 +45,12 @@ class ExampleApp(QMainWindow, design.Ui_Form):
 
 
     def textColorDialog(self):
-
         self.tcolor = QColorDialog.getColor()
-
         if self.tcolor.isValid():
             self.setTextStyleSheet()
 
 
     def setTextStyleSheet(self):
-
         self.textEdit.setStyleSheet("""
         QTextEdit {{
             background-color:{0};
@@ -67,17 +60,22 @@ class ExampleApp(QMainWindow, design.Ui_Form):
 
 
     def fontDialog(self):
-
         font, ok = QFontDialog.getFont()
-
         if ok:
             self.textEdit.setFont(font)
 
 
+    def saveText(self):
+        print('text_changed')
+        with open('num', 'w') as f:
+            f.write(self.textEdit.toPlainText())
+
+
 def main():
+    import sys
 
     app = QApplication(sys.argv)
-    window = ExampleApp()
+    window = StickyApp()
     window.show()
     sys.exit(app.exec_())
 
