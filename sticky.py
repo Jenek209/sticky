@@ -19,6 +19,7 @@ class StickyApp(QMainWindow, design.Ui_Form):
 
         self.bcolor = QColor()
         self.tcolor = QColor()
+        self.numb = 0
 
 
     def myContextMenu(self, pos):
@@ -66,8 +67,7 @@ class StickyApp(QMainWindow, design.Ui_Form):
 
 
     def saveText(self):
-        print('text_changed')
-        with open('num', 'w') as f:
+        with open('{}.dat'.format(self.numb), 'w') as f:
             f.write(self.textEdit.toPlainText())
 
 
