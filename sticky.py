@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QMainWindow, QMenu,
                              QApplication, QAction,
                              QColorDialog, QFontDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QIcon
 import design
 
 
@@ -11,6 +11,8 @@ class StickyApp(QMainWindow, design.Ui_Form):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+
+        self.setWindowIcon(QIcon('Sticky.png'))
 
         self.setCentralWidget(self.textEdit)
         self.textEdit.setContextMenuPolicy(Qt.CustomContextMenu)
