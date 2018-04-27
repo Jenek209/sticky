@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QMainWindow, QMenu,
-                             QApplication, QAction,
-                             QColorDialog, QFontDialog)
+                             QApplication, QColorDialog,
+                             QFontDialog)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon
 import design
@@ -24,13 +24,33 @@ class StickyApp(QMainWindow, design.Ui_Form):
         self.numb = 0
 
 
+    def keyPressEvent(self, event):
+        if ((event.key() == Qt.Key_W) and (event.modifiers() and Qt.ControlModifier)):
+            self.close()
+
+        if ((event.key() == Qt.Key_Q) and (event.modifiers() and Qt.ControlModifier)):
+            QApplication.instance().quit()
+
+        if ((event.key() == Qt.Key_T) and (event.modifiers() and Qt.ControlModifier)):
+            self.addSticker()
+
+        if ((event.key() == Qt.Key_B) and (event.modifiers() and Qt.ControlModifier)):
+            self.backgroundColorDialog()
+
+        if ((event.key() == Qt.Key_R) and (event.modifiers() and Qt.ControlModifier)):
+            self.textColorDialog()
+
+        if ((event.key() == Qt.Key_O) and (event.modifiers() and Qt.ControlModifier)):
+            self.fontDialog()
+
+
     def myContextMenu(self, pos):
         menu = QMenu(self)
 
-        menu.addAction(QAction(self.tr('+'), self, triggered=self.addSticker))
-        menu.addAction('background color', self.backgroundColorDialog)
-        menu.addAction('text color', self.textColorDialog)
-        menu.addAction('text format', self.fontDialog)
+        menu.addAction('&+', self.addSticker, 'Ctrl+T')
+        menu.addAction('&background color', self.backgroundColorDialog, 'Ctrl+B')
+        menu.addAction('text colo&r', self.textColorDialog, 'Ctrl+R')
+        menu.addAction('text f&ormat', self.fontDialog, 'Ctrl+O')
 
         menu.exec_(self.mapToGlobal(pos))
 
