@@ -19,8 +19,9 @@ class StickyApp(QMainWindow, design.Ui_Form):
         self.textEdit.customContextMenuRequested.connect(self.myContextMenu)
         self.textEdit.textChanged.connect(self.saveText)
 
-        self.bcolor = QColor()
-        self.tcolor = QColor()
+        self.bcolor = QColor('#4c4c4c')
+        self.tcolor = QColor('#bdbdbd')
+
         self.numb = 0
 
 
@@ -62,7 +63,6 @@ class StickyApp(QMainWindow, design.Ui_Form):
     def backgroundColorDialog(self):
         self.bcolor = QColorDialog.getColor()
         if self.bcolor.isValid():
-            self.tcolor = QColor()
             self.tcolor.setRgb(*[255-x for x in self.bcolor.getRgb()[0:3]], alpha=self.bcolor.getRgb()[3])
             self.setTextStyleSheet()
 
@@ -74,6 +74,7 @@ class StickyApp(QMainWindow, design.Ui_Form):
 
 
     def setTextStyleSheet(self):
+        print(self.bcolor.name())
         self.textEdit.setStyleSheet("""
         QTextEdit {{
             background-color:{0};
