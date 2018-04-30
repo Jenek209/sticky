@@ -6,7 +6,20 @@ from PyQt5.QtGui import QColor, QIcon
 import design
 
 
-class StickyApp(QMainWindow, design.Ui_Form):
+class Sticky(QApplication):
+    def __init__(self, args):
+        super().__init__(args)
+        global qApp
+        qApp = self
+        self.windows = []
+        self.addSticker(properties=None)
+
+    def addSticker(self, properties):
+        self.windows.append(StickyWindow(properties=properties))
+        self.windows[-1].show()
+
+
+class StickyWindow(QMainWindow, design.Ui_Form):
     def __init__(self, parent=None, properties=None):
         super().__init__(parent)
         self.setupUi(self)
@@ -16,7 +29,6 @@ class StickyApp(QMainWindow, design.Ui_Form):
         self.setCentralWidget(self.textEdit)
         self.textEdit.setContextMenuPolicy(Qt.CustomContextMenu)
         self.textEdit.customContextMenuRequested.connect(self.myContextMenu)
-        #self.textEdit.textChanged.connect(self.saveText)
 
         self.bcolor = QColor('#4c4c4c')
         self.tcolor = QColor('#bdbdbd')
@@ -66,7 +78,7 @@ class StickyApp(QMainWindow, design.Ui_Form):
             'font' : self.textEdit.property('font'),
             'styleSheet' : self.textEdit.property('styleSheet')
         }
-        addSticker(properties)
+        qApp.addSticker(properties)
 
     def backgroundColorDialog(self):
         self.bcolor = QColorDialog.getColor()
@@ -103,23 +115,12 @@ class StickyApp(QMainWindow, design.Ui_Form):
         self.textEdit.setStyleSheet(properties['styleSheet'])
 
 
-windows = []
-
-
-def addSticker(properties):
-    windows.append(StickyApp(properties=properties))
-    windows[-1].show()
-
-
 def main():
     import sys
 
-    app = QApplication(sys.argv)
-    addSticker(properties=None)
+    app = Sticky(sys.argv)
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
     main()
-
-del windows
