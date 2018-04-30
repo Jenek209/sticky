@@ -38,29 +38,19 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         if properties is not None:
             self.setProperties(properties)
 
+        self.hotkeys = {
+            Qt.Key_W: (Qt.ControlModifier, lambda self: self.close()),
+            Qt.Key_Q: (Qt.ControlModifier, lambda self: QApplication.instance().quit()),
+            Qt.Key_T: (Qt.ControlModifier, lambda self: self.addSticker()),
+            Qt.Key_B: (Qt.ControlModifier, lambda self: self.backgroundColorDialog()),
+            Qt.Key_R: (Qt.ControlModifier, lambda self: self.textColorDialog()),
+            Qt.Key_O: (Qt.ControlModifier, lambda self: self.fontDialog()),
+        }
 
     def keyPressEvent(self, event):
-        if (event.key() == Qt.Key_W) and (event.modifiers() and Qt.ControlModifier):
-            self.close()
-
-        if (event.key() == Qt.Key_Q) and (event.modifiers() and Qt.ControlModifier):
-            QApplication.instance().quit()
-
-        if (event.key() == Qt.Key_T) and (event.modifiers() == Qt.ControlModifier):
-            self.addSticker()
-
-        if (event.key() == Qt.Key_B) and (event.modifiers() and Qt.ControlModifier):
-            self.backgroundColorDialog()
-
-        if (event.key() == Qt.Key_R) and (event.modifiers() and Qt.ControlModifier):
-            self.textColorDialog()
-
-        if (event.key() == Qt.Key_O) and (event.modifiers() and Qt.ControlModifier):
-            self.fontDialog()
-
-        #if (event.key() == Qt.Key_T) and (event.modifiers() and Qt.ControlModifier) \
-        #        and (event.modifiers() and Qt.ShiftModifier):
-        #    self.loadText()
+        modifiers, handler = self.hotkeys.get(event.key(), (False, False))
+        if event.modifiers() and modifiers:
+            handler(self)
 
     def myContextMenu(self, pos):
         menu = QMenu(self)
