@@ -63,8 +63,8 @@ class StickyApp(QMainWindow, design.Ui_Form):
     def backgroundColorDialog(self):
         self.bcolor = QColorDialog.getColor()
         if self.bcolor.isValid():
-            self.tcolor.setRgb(*[255 - x for x in self.bcolor.getRgb()[0:3]],
-                               int_alpha=self.bcolor.getRgb()[3])
+            bcolor = self.bcolor.getRgb()
+            self.tcolor.setRgb(*[255 - x for x in bcolor[0:3]], bcolor[3])
             self.setTextStyleSheet()
         else:
             self.bcolor = QColor('#4c4c4c')
@@ -94,10 +94,8 @@ windows = []
 
 
 def addSticker():
-    print('I\'m here')
     windows.append(StickyApp())
     windows[-1].show()
-    print(windows[-1])
 
 
 def main():
