@@ -7,7 +7,7 @@ import design
 
 
 class StickyApp(QMainWindow, design.Ui_Form):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, properties=None):
         super().__init__(parent)
         self.setupUi(self)
 
@@ -22,6 +22,10 @@ class StickyApp(QMainWindow, design.Ui_Form):
         self.tcolor = QColor('#bdbdbd')
 
         self.numb = 0
+
+        if properties is not None:
+            self.setProperties(properties)
+
 
     def keyPressEvent(self, event):
         if (event.key() == Qt.Key_W) and (event.modifiers() and Qt.ControlModifier):
@@ -57,8 +61,12 @@ class StickyApp(QMainWindow, design.Ui_Form):
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
-        addSticker()
-
+        properties = {
+            'size' : self.textEdit.property('size'),
+            'font' : self.textEdit.property('font'),
+            'styleSheet' : self.textEdit.property('styleSheet')
+        }
+        addSticker(properties)
 
     def backgroundColorDialog(self):
         self.bcolor = QColorDialog.getColor()
@@ -89,12 +97,17 @@ class StickyApp(QMainWindow, design.Ui_Form):
         if ok:
             self.textEdit.setFont(font)
 
+    def setProperties(self, properties):
+        self.resize(properties['size'])
+        self.textEdit.setFont(properties['font'])
+        self.textEdit.setStyleSheet(properties['styleSheet'])
+
 
 windows = []
 
 
-def addSticker():
-    windows.append(StickyApp())
+def addSticker(properties):
+    windows.append(StickyApp(properties=properties))
     windows[-1].show()
 
 
@@ -102,7 +115,7 @@ def main():
     import sys
 
     app = QApplication(sys.argv)
-    addSticker()
+    addSticker(properties=None)
     sys.exit(app.exec_())
 
 
