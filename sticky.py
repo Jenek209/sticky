@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QMainWindow, QMenu,
                              QApplication, QColorDialog,
                              QFontDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QIcon
+from PyQt5.QtGui import QColor, QIcon, QPalette
 import design
 
 
@@ -23,18 +23,16 @@ class StickyWindow(QMainWindow, design.Ui_Form):
     def __init__(self, parent=None, properties=None):
         super().__init__(parent)
         self.setupUi(self)
-
+        # Добавление иконки
         self.setWindowIcon(QIcon('Sticky.png'))
-
+        # Заполнение окна текстовым редактором и обработка контекстного меню
         self.setCentralWidget(self.textEdit)
         self.textEdit.setContextMenuPolicy(Qt.CustomContextMenu)
         self.textEdit.customContextMenuRequested.connect(self.myContextMenu)
-
-        self.bcolor = QColor('#4c4c4c')
-        self.tcolor = QColor('#bdbdbd')
-
-        self.numb = 0
-
+        # Системный цвет фона и текста
+        self.bcolor = self.textEdit.palette().color(QPalette.Base)
+        self.tcolor = self.textEdit.palette().color(QPalette.WindowText)
+        # Наследуется размер, шрифт и цвет
         if properties is not None:
             self.setProperties(properties)
 
@@ -63,9 +61,9 @@ class StickyWindow(QMainWindow, design.Ui_Form):
 
     def addSticker(self):
         properties = {
-            'size' : self.textEdit.property('size'),
-            'font' : self.textEdit.property('font'),
-            'styleSheet' : self.textEdit.property('styleSheet')
+            'size': self.textEdit.property('size'),
+            'font': self.textEdit.property('font'),
+            'styleSheet': self.textEdit.property('styleSheet')
         }
         qApp.addSticker(properties)
 
@@ -76,14 +74,14 @@ class StickyWindow(QMainWindow, design.Ui_Form):
             self.tcolor.setRgb(*[255 - x for x in bcolor[0:3]], bcolor[3])
             self.setTextStyleSheet()
         else:
-            self.bcolor = QColor('#4c4c4c')
+            self.bcolor = self.textEdit.palette().color(QPalette.Base)
 
     def textColorDialog(self):
         self.tcolor = QColorDialog.getColor()
         if self.tcolor.isValid():
             self.setTextStyleSheet()
         else:
-            self.tcolor = QColor('#bdbdbd')
+            self.tcolor = self.textEdit.palette().color(QPalette.WindowText)
 
     def setTextStyleSheet(self):
         self.textEdit.setStyleSheet("""
@@ -105,6 +103,7 @@ class StickyWindow(QMainWindow, design.Ui_Form):
 
     def load(self):
         print('I\'m in self.load()')
+
 
 def main():
     import sys
