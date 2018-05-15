@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QMainWindow, QMenu,
                              QApplication, QColorDialog,
                              QFontDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtGui import QIcon, QPalette, QFont
 from PyQt5 import QtSql
 import design
 
@@ -37,7 +37,6 @@ class StickyApp(QApplication):
     def save(self, properties):
         insert = "insert into sticky values({id}, '{font}', '{size}', '{styleSheet}', '{text}')".format(**properties)
         self.query.exec_(insert)
-        print(insert)
 
     def load(self):
         print('I\'m in self.load()')
@@ -124,13 +123,15 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         font, ok = QFontDialog.getFont(self.textEdit)
         if ok:
             self.textEdit.setFont(font)
-            self.properties['font'] = font
+            self.properties['font'] = font.toString()
 
     def setProperties(self, properties):
         self.resize(properties.get('size', self.textEdit.property('size')))
-        self.textEdit.setFont(properties.get('font', self.textEdit.property('font')))
+        font = QFont()
+        font.fromString(properties.get('font', self.textEdit.property('font').toString()))
+        self.textEdit.setFont(font)
         self.textEdit.setStyleSheet(properties.get('styleSheet'))
-        self.properties['font'] = self.textEdit.property('font')
+        self.properties['font'] = self.textEdit.property('font').toString()
         self.properties['styleSheet'] = self.textEdit.property('styleSheet')
 
     def save(self):
