@@ -98,7 +98,7 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         self.bcolor = QColorDialog.getColor()
         if self.bcolor.isValid():
             bcolor = self.bcolor.getRgb()
-            self.tcolor.setRgb(*[255 - x for x in bcolor[0:3]], bcolor[3])
+            self.tcolor.setRgb(*[(x + 122) % 255 for x in bcolor[0:3]], bcolor[3])
             self.setTextStyleSheet()
         else:
             self.bcolor = self.textEdit.palette().color(QPalette.Base)
