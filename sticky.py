@@ -14,15 +14,15 @@ class StickyApp(QApplication):
         qApp = self
         self.createDB()
         self.windows = []
-        self.addSticker(properties={})
-
-    def addSticker(self, properties):
         # Получение последнего id из базы данных
         self.query.exec_("select max(id) from sticky")
         self.query.next()
         # Если он там есть (иначе 0)
-        lastid = self.query.value(0) if self.query.value(0) != '' else 0
-        properties['id'] = 1 + len(self.windows) + lastid
+        self.lastid = self.query.value(0) if self.query.value(0) != '' else 0
+        self.addSticker(properties={})
+
+    def addSticker(self, properties):
+        properties['id'] = 1 + len(self.windows) + self.lastid
         self.windows.append(StickyWindow(properties=properties))
         self.windows[-1].show()
 
@@ -106,7 +106,9 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
-        self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))(self.textEdit.property('size'))
+        self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))\
+            (self.textEdit.property('size'))
+        self.properties['text'] = ''
         qApp.addSticker(self.properties)
 
     def backgroundColorDialog(self):
