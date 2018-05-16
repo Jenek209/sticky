@@ -35,11 +35,21 @@ class StickyApp(QApplication):
                     "size varchar(20), font varchar(20), styleSheet text, text text)")
 
     def save(self, properties):
-        insert = "insert into sticky values({id}, '{font}', '{size}', '{styleSheet}', '{text}')".format(**properties)
+        insert = "insert into sticky values({id}, '{size}', '{font}', '{styleSheet}', '{text}')".format(**properties)
         self.query.exec_(insert)
 
     def load(self):
-        print('I\'m in self.load()')
+        sid = 24
+        self.query.exec_("select * from sticky where id = {}".format(sid))
+        self.query.next()
+        properties = {
+            'id': self.query.value(0),
+            'size': self.query.value(1),
+            'font': self.query.value(2),
+            'styleSheet': self.query.value(3),
+            'text': self.query.value(4)
+        }
+        self.addSticker(properties=properties)
 
     def myQuit(self):
         for window in self.windows:
@@ -70,11 +80,11 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         # Словарь горячих клавиш
         self.hotkeys = {
             (Qt.Key_S, int(Qt.ControlModifier)): self.save,
-            (Qt.Key_L, int(Qt.ControlModifier)): self.load,
+            (Qt.Key_L, int(Qt.ControlModifier)): qApp.load,
             (Qt.Key_W, int(Qt.ControlModifier)): self.myClose,
             (Qt.Key_Q, int(Qt.ControlModifier)): qApp.myQuit,
             (Qt.Key_T, int(Qt.ControlModifier)): self.addSticker,
-            (Qt.Key_T, int(Qt.ControlModifier) + int(Qt.ShiftModifier)): self.load,
+            (Qt.Key_T, int(Qt.ControlModifier) + int(Qt.ShiftModifier)): self.loadLastClosed,
             (Qt.Key_B, int(Qt.ControlModifier)): self.backgroundColorDialog,
             (Qt.Key_R, int(Qt.ControlModifier)): self.textColorDialog,
             (Qt.Key_O, int(Qt.ControlModifier)): self.fontDialog
@@ -91,12 +101,12 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.addAction('text colo&r', self.textColorDialog, 'Ctrl+R')
         menu.addAction('text f&ormat', self.fontDialog, 'Ctrl+O')
         menu.addAction('&save', self.save, 'Ctrl+S')
-        menu.addAction('&load', self.load, 'Ctrl+L')
+        menu.addAction('&load', qApp.load, 'Ctrl+L')
 
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
-        self.properties['size'] = self.textEdit.property('size')
+        self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))(self.textEdit.property('size'))
         qApp.addSticker(self.properties)
 
     def backgroundColorDialog(self):
@@ -136,26 +146,30 @@ class StickyWindow(QMainWindow, design.Ui_Form):
             self.save()
 
     def setProperties(self, properties):
-        self.resize(properties.get('size', self.textEdit.property('size')))
+        size = properties.get('size', (lambda size: '{0},{1}'.format(size.width(), size.height()))(self.textEdit.property('size')))
+        self.resize(*[int(value) for value in size.split(',')])
+        fontString = properties.get('font', '')
+        fontString = self.textEdit.property('font').toString() if fontString == '' else fontString
         font = QFont()
-        font.fromString(properties.get('font', self.textEdit.property('font').toString()))
+        font.fromString(fontString)
         self.textEdit.setFont(font)
         self.textEdit.setStyleSheet(properties.get('styleSheet'))
+        self.textEdit.setText(properties.get('text', ''))
         self.properties['font'] = self.textEdit.property('font').toString()
         self.properties['styleSheet'] = self.textEdit.property('styleSheet')
 
     def save(self):
         self.properties['id'] = self.id
-        self.properties['size'] = self.textEdit.property('size')
+        self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))(self.textEdit.property('size'))
         self.properties['text'] = self.textEdit.toPlainText()
         qApp.save(self.properties)
-
-    def load(self):
-        qApp.load()
 
     def myClose(self):
         self.save()
         self.close()
+
+    def loadLastClosed(self):
+        print('I\'m in StickyWindow.loadLastClosed()')
 
 
 def main():
