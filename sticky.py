@@ -19,10 +19,10 @@ class StickyApp(QApplication):
         self.query.next()
         # Если он там есть (иначе 0)
         self.lastid = self.query.value(0) if self.query.value(0) != '' else 0
-        self.addSticker(properties={})
+        self.ids = []
+        self.addSticker(properties={'id': 1 + self.lastid})
 
     def addSticker(self, properties):
-        properties['id'] = 1 + len(self.windows) + self.lastid
         self.windows.append(StickyWindow(properties=properties))
         self.windows[-1].show()
 
@@ -35,11 +35,10 @@ class StickyApp(QApplication):
                     "size varchar(20), font varchar(20), styleSheet text, text text)")
 
     def save(self, properties):
-        insert = "insert into sticky values({id}, '{size}', '{font}', '{styleSheet}', '{text}')".format(**properties)
+        insert = "insert or replace into sticky values({id}, '{size}', '{font}', '{styleSheet}', '{text}')".format(**properties)
         self.query.exec_(insert)
 
-    def load(self):
-        sid = 24
+    def load(self, sid):
         self.query.exec_("select * from sticky where id = {}".format(sid))
         self.query.next()
         properties = {
@@ -106,10 +105,12 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
+        properties = self.properties
+        properties['id'] = 1 + len(qApp.windows) + qApp.lastid
         self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))\
             (self.textEdit.property('size'))
         self.properties['text'] = ''
-        qApp.addSticker(self.properties)
+        qApp.addSticker(properties)
 
     def backgroundColorDialog(self):
         self.bcolor = QColorDialog.getColor()
@@ -167,11 +168,13 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         qApp.save(self.properties)
 
     def myClose(self):
+        qApp.ids.append(self.id)
         self.save()
         self.close()
 
     def loadLastClosed(self):
-        print('I\'m in StickyWindow.loadLastClosed()')
+        if len(qApp.ids) > 0:
+            qApp.load(qApp.ids.pop(-1))
 
 
 def main():
