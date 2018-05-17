@@ -23,7 +23,7 @@ class StickyApp(QApplication):
         self.addSticker(properties={'id': 1 + self.lastid})
 
     def addSticker(self, properties):
-        self.windows.append(StickyWindow(properties=properties))
+        self.windows.append(StickyWindow(properties=properties.copy()))
         self.windows[-1].show()
 
     def createDB(self):
@@ -57,7 +57,7 @@ class StickyApp(QApplication):
 
 
 class StickyWindow(QMainWindow, design.Ui_Form):
-    def __init__(self, properties={}):
+    def __init__(self, properties={'id': 0}):
         super().__init__()
         self.setupUi(self)
         # Добавление иконки
@@ -71,7 +71,6 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         self.tcolor = self.textEdit.palette().color(QPalette.WindowText)
         # Определяются параметры
         self.properties = properties
-        self.id = self.properties.get('id')
         # Наследуется размер, шрифт и цвет
         self.setProperties(properties)
         # Сохраняются изменения текста
@@ -105,11 +104,11 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.exec_(self.mapToGlobal(pos))
 
     def addSticker(self):
-        properties = self.properties
+        properties = self.properties.copy()
         properties['id'] = 1 + len(qApp.windows) + qApp.lastid
-        self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))\
+        properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height())) \
             (self.textEdit.property('size'))
-        self.properties['text'] = ''
+        properties['text'] = ''
         qApp.addSticker(properties)
 
     def backgroundColorDialog(self):
@@ -131,14 +130,14 @@ class StickyWindow(QMainWindow, design.Ui_Form):
             self.save()
 
     def setTextStyleSheet(self):
-        newStyleSheet = """
+        self.styleSheet = """
         QTextEdit {{
             background-color:{0};
             color:{1};
         }}
         """.format(self.bcolor.name(), self.tcolor.name())
-        self.textEdit.setStyleSheet(newStyleSheet)
-        self.properties['styleSheet'] = newStyleSheet
+        self.textEdit.setStyleSheet(self.styleSheet)
+        self.properties['styleSheet'] = self.styleSheet
         self.save()
 
     def fontDialog(self):
@@ -162,7 +161,6 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         self.properties['styleSheet'] = self.textEdit.property('styleSheet')
 
     def save(self):
-        self.properties['id'] = self.id
         self.properties['size'] = (lambda size: '{0},{1}'.format(size.width(), size.height()))(self.textEdit.property('size'))
         self.properties['text'] = self.textEdit.toPlainText()
         qApp.save(self.properties)
@@ -172,11 +170,11 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         qApp.load(sid)
 
     def myClose(self):
-        qApp.ids.append(self.id)
+        qApp.ids.append(self.properties.get('id'))
         self.save()
         self.close()
 
-    def closeEvent(self, evnt):
+    def closeEvent(self, event):
         self.myClose()
 
     def loadLastClosed(self):
