@@ -79,7 +79,7 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         self.hotkeys = {
             (Qt.Key_S, int(Qt.ControlModifier)): self.save,
             (Qt.Key_L, int(Qt.ControlModifier)): self.load,
-            (Qt.Key_W, int(Qt.ControlModifier)): self.myClose,
+            (Qt.Key_W, int(Qt.ControlModifier)): self.close,
             (Qt.Key_Q, int(Qt.ControlModifier)): qApp.myQuit,
             (Qt.Key_T, int(Qt.ControlModifier)): self.addSticker,
             (Qt.Key_T, int(Qt.ControlModifier) + int(Qt.ShiftModifier)): self.loadLastClosed,
@@ -169,13 +169,9 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         sid = 100
         qApp.load(sid)
 
-    def myClose(self):
+    def closeEvent(self, event):
         qApp.ids.append(self.properties.get('id'))
         self.save()
-        self.close()
-
-    def closeEvent(self, event):
-        self.myClose()
 
     def loadLastClosed(self):
         if len(qApp.ids) > 0:
