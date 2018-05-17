@@ -79,7 +79,7 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         # Словарь горячих клавиш
         self.hotkeys = {
             (Qt.Key_S, int(Qt.ControlModifier)): self.save,
-            (Qt.Key_L, int(Qt.ControlModifier)): qApp.load,
+            (Qt.Key_L, int(Qt.ControlModifier)): self.load,
             (Qt.Key_W, int(Qt.ControlModifier)): self.myClose,
             (Qt.Key_Q, int(Qt.ControlModifier)): qApp.myQuit,
             (Qt.Key_T, int(Qt.ControlModifier)): self.addSticker,
@@ -100,7 +100,7 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.addAction('text colo&r', self.textColorDialog, 'Ctrl+R')
         menu.addAction('text f&ormat', self.fontDialog, 'Ctrl+O')
         menu.addAction('&save', self.save, 'Ctrl+S')
-        menu.addAction('&load', qApp.load, 'Ctrl+L')
+        menu.addAction('&load', self.load, 'Ctrl+L')
 
         menu.exec_(self.mapToGlobal(pos))
 
@@ -167,10 +167,17 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         self.properties['text'] = self.textEdit.toPlainText()
         qApp.save(self.properties)
 
+    def load(self):
+        sid = 100
+        qApp.load(sid)
+
     def myClose(self):
         qApp.ids.append(self.id)
         self.save()
         self.close()
+
+    def closeEvent(self, evnt):
+        self.myClose()
 
     def loadLastClosed(self):
         if len(qApp.ids) > 0:
