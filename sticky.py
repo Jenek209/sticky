@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (QMainWindow, QMenu,
                              QApplication, QColorDialog,
-                             QFontDialog)
+                             QFontDialog, QDialog,
+                             QTableView, QVBoxLayout)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPalette, QFont
 from PyQt5 import QtSql
@@ -166,8 +167,11 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         qApp.save(self.properties)
 
     def load(self):
-        sid = 100
-        qApp.load(sid)
+        try:
+            sid = StickyLoad()
+            qApp.load(sid)
+        except:
+            pass
 
     def closeEvent(self, event):
         qApp.ids.append(self.properties.get('id'))
@@ -176,6 +180,48 @@ class StickyWindow(QMainWindow, design.Ui_Form):
     def loadLastClosed(self):
         if len(qApp.ids) > 0:
             qApp.load(qApp.ids.pop(-1))
+
+
+class StickyLoad(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.resize(600, 400)
+        # Получение id стикера для загрузки
+        self.setLayout(self.myLayout())
+        # Словарь горячих клавиш
+        self.hotkeys = {
+            (Qt.Key_W, int(Qt.ControlModifier)): self.close,
+            (Qt.Key_Q, int(Qt.ControlModifier)): qApp.myQuit,
+            (Qt.Key_Enter-1, int(Qt.NoModifier)): self.getSID
+        }
+        self.view.doubleClicked.connect(self.getSID)
+        self.exec_()
+
+    def myLayout(self):
+        qmodel = QtSql.QSqlQueryModel()
+        qmodel.setQuery("select id, text from sticky order by id desc")
+        self.view = QTableView(self)
+        self.view.setModel(qmodel)
+        self.view.verticalHeader().hide()
+        self.view.resizeColumnToContents(0)
+        self.view.horizontalHeader().setStretchLastSection(True)
+        self.view.setSelectionBehavior(QTableView.SelectRows)
+        self.view.setSelectionMode(QTableView.SingleSelection)
+        layout = QVBoxLayout()
+        layout.addWidget(self.view)
+        layout.setContentsMargins(0, 0, 0, 0)
+        return layout
+
+    def getSID(self):
+        index = self.view.selectedIndexes()[0]
+        self.sid = self.view.model().data(index)
+        self.close()
+
+    def keyPressEvent(self, event):
+        self.hotkeys.get((event.key(), int(event.modifiers())), lambda: None)()
+
+    def __repr__(self):
+        return repr(self.sid)
 
 
 def main():
