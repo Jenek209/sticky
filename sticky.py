@@ -101,6 +101,9 @@ class StickyWindow(QMainWindow, design.Ui_Form):
         menu.addAction('text f&ormat', self.fontDialog, 'Ctrl+O')
         menu.addAction('&save', self.save, 'Ctrl+S')
         menu.addAction('&load', self.load, 'Ctrl+L')
+        menu.addAction('&close', self.close, 'Ctrl+W')
+        menu.addAction('&quit', qApp.myQuit, 'Ctrl+Q')
+        menu.addAction('reo&pen last closed', self.loadLastClosed, 'Shift+Ctrl+T')
 
         menu.exec_(self.mapToGlobal(pos))
 
