@@ -207,6 +207,7 @@ class StickyLoad(QDialog):
         self.view.horizontalHeader().setStretchLastSection(True)
         self.view.setSelectionBehavior(QTableView.SelectRows)
         self.view.setSelectionMode(QTableView.SingleSelection)
+        self.view.selectRow(0)
         layout = QVBoxLayout()
         layout.addWidget(self.view)
         layout.setContentsMargins(0, 0, 0, 0)
