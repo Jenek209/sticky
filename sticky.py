@@ -195,9 +195,10 @@ class StickyLoad(QDialog):
         self.hotkeys = {
             (Qt.Key_W, int(Qt.ControlModifier)): self.close,
             (Qt.Key_Q, int(Qt.ControlModifier)): qApp.myQuit,
-            (Qt.Key_Enter-1, int(Qt.NoModifier)): self.getSID
+            (Qt.Key_Enter-1, int(Qt.NoModifier)): self.getSIDandClose,
+            (Qt.Key_Delete, int(Qt.NoModifier)): self.deleteRow
         }
-        self.view.doubleClicked.connect(self.getSID)
+        self.view.doubleClicked.connect(self.getSIDandClose)
         self.exec_()
 
     def myLayout(self):
@@ -219,10 +220,31 @@ class StickyLoad(QDialog):
     def getSID(self):
         index = self.view.selectedIndexes()[0]
         self.sid = self.view.model().data(index)
+
+    def getSIDandClose(self):
+        self.getSID()
         self.close()
 
     def keyPressEvent(self, event):
         self.hotkeys.get((event.key(), int(event.modifiers())), lambda: None)()
+
+    def deleteRow(self):
+        self.getSID()
+        qmodel = QtSql.QSqlQueryModel()
+        qmodel.setQuery("delete from sticky where id = {}".format(self.sid))
+        deletedRow = self.view.selectedIndexes()[0].row()
+        for x in (i for j in (range(deletedRow+1, self.view.model().rowCount()),
+                range(deletedRow-1, -1, -1)) for i in j):
+            if self.view.isRowHidden(x):
+                continue
+            rowToSelecet = x
+            break
+        try:
+            self.view.selectRow(rowToSelecet)
+        except:
+            self.view.clearSelection()
+        self.view.hideRow(deletedRow)
+        del self.sid
 
     def __repr__(self):
         return repr(self.sid)
